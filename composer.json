@@ -1,0 +1,30 @@
+{
+    "name": "cberube/console-menu",
+    "description": "Support classes for creating menus quickly in Symfony Console applications",
+    "minimum-stability": "stable",
+    "authors":
+    [
+        {
+            "name": "Charles Berube",
+            "email": "cberube@gmail.com"
+        }
+    ],
+
+    "autoload":
+    {
+        "psr-0":
+        {
+            "CBerube\\": [ "src/" ]
+        }
+    },
+
+    "require":
+    {
+        "symfony/console": "*@stable"
+    },
+
+    "require-dev":
+    {
+        "phpunit/phpunit": "*@stable"
+    }
+}

@@ -1,0 +1,9 @@
+<phpunit bootstrap="bootstrap.php">
+    <testsuites>
+        <testsuite name="Unit tests">
+            <include>
+                <directory>CBerube</directory>
+            </include>
+        </testsuite>
+    </testsuites>
+</phpunit>

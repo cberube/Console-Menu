@@ -1,0 +1,1 @@
+Console-Menu is the beginning of a structured re-write of a small menu system I built on top of Symfony's Console component in order to help me interactively run through large sets of tests during some bug fixing and refactoring sessions.
