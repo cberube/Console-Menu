@@ -6,6 +6,8 @@ use CBerube\Console\Menu\Menu;
 use CBerube\Console\Menu\MenuItem;
 use CBerube\Console\Menu\MenuScreen;
 use CBerube\Console\Menu\MenuScreenRenderer;
+use CBerube\Console\Screen\Clear\ShellClear;
+use CBerube\Console\Screen\Geometry\SymfonyScreenGeometry;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\DialogHelper;
 use Symfony\Component\Console\Input\InputInterface;
@@ -25,12 +27,19 @@ class SimpleMenu extends Command
         /** @var DialogHelper $dialog */
         $dialog = $this->getHelperSet()->get('dialog');
 
+        $screenGeometry = SymfonyScreenGeometry::getInstance($this->getApplication());
+
         $menu = $this->generateMenu();
 
         $menuScreen = new MenuScreen();
         $menuScreen->setMenu($menu);
+        $menuScreen->setHeader('Simple Menu Sample');
+        $menuScreen->setHeaderDivider('=');
 
         $renderer = new MenuScreenRenderer();
+        $renderer->setScreenGeometry($screenGeometry);
+        $renderer->setClearOperation(new ShellClear($screenGeometry));
+
         $renderer->render($menuScreen, $output, $dialog);
 
         $selectedItem = $renderer->getSelectedItem();
