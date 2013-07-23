@@ -3,6 +3,7 @@
 namespace CBerube\Console\Menu;
 
 use CBerube\Console\Screen\Clear\IScreenClearOperation;
+use CBerube\Console\Screen\Clear\NullClear;
 use CBerube\Console\Screen\Geometry\IScreenGeometry;
 use CBerube\Console\Screen\IScreen;
 use CBerube\Console\Screen\IScreenRenderer;
@@ -20,8 +21,17 @@ class MenuScreenRenderer implements IScreenRenderer
     /** @var IScreenClearOperation */
     private $clearOperation;
 
+    /** @var IMenuItemFormatter */
+    private $menuItemFormatter;
+
     /** @var int */
     private $dividerInterval = 5;
+
+    public function __construct()
+    {
+        $this->clearOperation = new NullClear();
+        $this->menuItemFormatter = new DefaultMenuItemFormatter();
+    }
 
     public function render(IScreen $screen, OutputInterface $output, DialogHelper $dialog)
     {
@@ -60,7 +70,7 @@ class MenuScreenRenderer implements IScreenRenderer
     {
         $screenGeometry = $this->getScreenGeometry();
 
-        $formatter = new DefaultMenuItemFormatter();
+        $formatter = $this->getMenuItemFormatter();
         $menuGeometry = new MenuGeometry();
 
         $menuGeometry->setWidth($screenGeometry->getWidth());
@@ -138,5 +148,21 @@ class MenuScreenRenderer implements IScreenRenderer
             $output->write(str_repeat($menuScreen->getHeaderDivider(), $totalWidth));
             $output->writeln('');
         }
+    }
+
+    /**
+     * @return \CBerube\Console\Menu\IMenuItemFormatter
+     */
+    public function getMenuItemFormatter()
+    {
+        return $this->menuItemFormatter;
+    }
+
+    /**
+     * @param \CBerube\Console\Menu\IMenuItemFormatter $menuItemFormatter
+     */
+    public function setMenuItemFormatter($menuItemFormatter)
+    {
+        $this->menuItemFormatter = $menuItemFormatter;
     }
 }

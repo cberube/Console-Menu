@@ -2,6 +2,7 @@
 
 namespace CBerube\Console\Menu;
 
+use CBerube\Console\Screen\Clear\IScreenClearOperation;
 use CBerube\Console\Screen\IScreen;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -24,6 +25,17 @@ class MenuScreenRendererTest extends \PHPUnit_Framework_TestCase
         $this->mockDialog = $this->getMock('\\Symfony\\Component\\Console\\Helper\\DialogHelper');
     }
 
+    public function testGetSetScreenClearOperation()
+    {
+        $mockScreenClear = $this->getMockForAbstractClass(
+            '\\CBerube\\Console\\Screen\\Clear\\IScreenClearOperation'
+        );
+
+        /** @var IScreenClearOperation $mockScreenClear */
+        $this->menuScreenRenderer->setClearOperation($mockScreenClear);
+        $this->assertSame($mockScreenClear, $this->menuScreenRenderer->getClearOperation());
+    }
+
     public function testRenderWithInvalidScreenType()
     {
         $mockScreen = $this->getMockForAbstractClass('\\CBerube\\Console\\Screen\\IScreen');
@@ -44,6 +56,20 @@ class MenuScreenRendererTest extends \PHPUnit_Framework_TestCase
         $expectedMenuItemCount = mt_rand(5, 10);
         $expectedSelectedItemIndex = mt_rand();
         $expectedSelectedItem = md5(mt_rand());
+        $expectedScreenWidth = mt_rand(50, 80);
+        $expectedScreenHeight = mt_rand(20, 30);
+
+        $mockScreenGeometry = $this->getMockForAbstractClass('\\CBerube\\Console\\Screen\\Geometry\\IScreenGeometry');
+        $mockScreenGeometry
+            ->expects($this->once())
+            ->method('getWidth')
+            ->will($this->returnValue($expectedScreenWidth));
+        $mockScreenGeometry
+            ->expects($this->once())
+            ->method('getHeight')
+            ->will($this->returnValue($expectedScreenHeight));
+
+        $mockFormatter = $this->getMockForAbstractClass('\\CBerube\\Console\\Menu\\IMenuItemFormatter');
 
         $mockScreen = $this
             ->getMockBuilder('\\CBerube\\Console\\Menu\\MenuScreen')
@@ -55,7 +81,10 @@ class MenuScreenRendererTest extends \PHPUnit_Framework_TestCase
             ->setMethods(array('getIterator'))
             ->getMockForAbstractClass();
 
-        $mockMenuItemList = $this->buildMenuItemListForOutputTest($expectedMenuItemCount);
+        $mockMenuItemList = $this->buildMenuItemListForOutputTest(
+            $mockFormatter,
+            $expectedMenuItemCount
+        );
 
         $mockMenu
             ->expects($this->once())
@@ -80,6 +109,8 @@ class MenuScreenRendererTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($expectedSelectedItem));
 
         /** @noinspection PhpParamsInspection */
+        $this->menuScreenRenderer->setScreenGeometry($mockScreenGeometry);
+        $this->menuScreenRenderer->setMenuItemFormatter($mockFormatter);
         $this->menuScreenRenderer->render($mockScreen, $this->mockOutput, $this->mockDialog);
 
         $actualSelectedItem = $this->menuScreenRenderer->getSelectedItem();
@@ -87,28 +118,23 @@ class MenuScreenRendererTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Builds a list of mock menu items and configures the mock output object
-     * to expect writeln calls for each item in sequence.
+     * Builds a list of mock menu items and configures the mock formatter
+     * to expect format calls for each item in sequence.
      *
+     * @param \PHPUnit_Framework_MockObject_MockObject $mockFormatter
      * @param int $expectedMenuItemCount
      * @return array
      */
-    private function buildMenuItemListForOutputTest($expectedMenuItemCount)
+    private function buildMenuItemListForOutputTest($mockFormatter, $expectedMenuItemCount)
     {
         $menuItemList = array();
 
         for ($i = 0; $i < $expectedMenuItemCount; $i++) {
-            $description = md5(mt_rand());
-
             $mockItem = $this->getMockForAbstractClass('\\CBerube\\Console\\Menu\\IMenuItem');
-            $mockItem
-                ->expects($this->once())
-                ->method('getDescription')
-                ->will($this->returnValue($description));
-            $this->mockOutput
+            $mockFormatter
                 ->expects($this->at($i))
-                ->method('writeln')
-                ->with("$i) $description");
+                ->method('format')
+                ->with($this->anything(), $this->anything(), $mockItem);
 
             $menuItemList[$i] = $mockItem;
         }

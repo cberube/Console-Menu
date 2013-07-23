@@ -4,10 +4,10 @@ namespace CBerube\Console\Screen\Clear;
 
 use Symfony\Component\Console\Output\OutputInterface;
 
-class EscapeSequenceClear implements IScreenClearOperation
+class NullClear implements IScreenClearOperation
 {
     public function clear(OutputInterface $output)
     {
-        $output->write("\033[2J");
+        //  No-op
     }
 }

@@ -7,6 +7,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ShellClear implements IScreenClearOperation
 {
+    /** @var IScreenGeometry */
     private $screenGeometry;
 
     public function __construct(IScreenGeometry $screenGeometry)
